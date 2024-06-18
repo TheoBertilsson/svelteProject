@@ -32,18 +32,22 @@ function userStore() {
 	if (!auth || !globalThis.window) {
 		console.warn('Auth is not initialized or not in browser');
 		const { subscribe } = writable<User | null>(null);
-
 		return {
 			subscribe
 		};
 	}
+
 	const { subscribe } = writable(auth?.currentUser ?? null, (set) => {
-		onAuthStateChanged(auth, (user) => {
+		unsubscribe = onAuthStateChanged(auth, (user) => {
 			set(user);
 		});
+
 		return () => unsubscribe();
 	});
-	return { subscribe };
+
+	return {
+		subscribe
+	};
 }
 
 export const user = userStore();
